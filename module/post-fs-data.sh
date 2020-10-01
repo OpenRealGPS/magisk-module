@@ -46,4 +46,15 @@ cp -v $MODDIR/bin/openrealgps-$ARCH.so $MODDIR/system/vendor/$LIBPATH/hw/$SONAME
 cp -v -p $SVPATH $MODDIR/system/vendor/bin/hw/gnss-service >> /cache/OpenRealGPS.log 2>&1
 cp -v $MODDIR/bin/dummy-service $MODDIR/system/vendor/bin/hw/$SVNAME >> /cache/OpenRealGPS.log 2>&1
 
+
+SECON=`/system/bin/ls -Z $SVPATH | sed 's/^\(.*\) .*$/\1/g' | sed 's/^.*:\(.*\)_exec.*$/\1/g'`
+if [[ $SECON ]]
+then
+  write_log "Injecting SELinux policies for service context $SECON"
+  magiskpolicy --live "allow $SECON * * *"
+  magiskpolicy --live "allow * $SECON * *"
+  magiskpolicy --live "allow $SECON_exec * * *"
+  magiskpolicy --live "allow * $SECON_exec * *"
+fi
+
 write_log 'post-fs-data done!'

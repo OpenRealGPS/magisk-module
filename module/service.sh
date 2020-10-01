@@ -15,7 +15,7 @@ fi
   write_log "OpenRealGPS service monitor started as: `id`"
   while true
   do
-    if [ ! -z "`/system/bin/ps -AZ | grep gps`" ]
+    if [ -z "`/system/bin/ps -AZ | grep gnss-service`" ]
     then
       write_log 'Starting GNSS service in Magisk ...'
       /vendor/bin/hw/gnss-service
