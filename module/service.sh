@@ -24,3 +24,11 @@ fi
     sleep 3
   done
 } &
+
+if [[ -e $MODDIR/service_context ]]
+then
+  SECON=`cat $MODDIR/service_context`
+  write_log "Injecting SELinux policies for service context $SECON"
+  magiskpolicy --live "allow { $SECON ${SECON}_exec } * * *"
+  magiskpolicy --live "allow * { $SECON ${SECON}_exec } * *"
+fi
