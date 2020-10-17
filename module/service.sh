@@ -2,6 +2,7 @@
 MODDIR=${0%/*}
 
 write_log() {
+  echo "[`date`] $1" >> /cache/OpenRealGPS.log
   /system/bin/log -t 'OpenRealGPS_Service' "$1"
 }
 
@@ -11,11 +12,23 @@ then
   exit
 fi
 
+if [[ ! -e $MODDIR/service_path ]]
+then
+  write_log 'Original service path not found, exiting.'
+  exit
+fi
+
+SVPATH=`cat $MODDIR/service_path`
+SVNAME=`basename $SVPATH`
+write_log "Force restart service $SVNAME"
+PID=`/system/bin/pkill -f -V -9 $SVNAME`
+if [[ $PID ]]; then write_log "Restarted PID $PID"; fi
+
 {
   write_log "OpenRealGPS service monitor started as: `id`"
   while true
   do
-    if [ -z "`/system/bin/ps -AZ | grep gnss-service`" ]
+    if [ -z "`/system/bin/ps -A | grep gnss-service`" ]
     then
       write_log 'Starting GNSS service in Magisk ...'
       /vendor/bin/hw/gnss-service
@@ -25,9 +38,9 @@ fi
   done
 } &
 
-if [[ -e $MODDIR/service_context ]]
+SECON=`/system/bin/ls -Z $SVPATH | sed 's/^.*u:object_r:\(.*\):s0.*$/\1/g' | sed 's/^\(.*\)_exec$/\1/g'`
+if [[ $SECON ]]
 then
-  SECON=`cat $MODDIR/service_context`
   write_log "Injecting SELinux policies for service context $SECON"
   magiskpolicy --live "allow { $SECON ${SECON}_exec } * * *"
   magiskpolicy --live "allow * { $SECON ${SECON}_exec } * *"

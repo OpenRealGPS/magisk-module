@@ -35,15 +35,13 @@ if [[ ! $SOPATH ]]; then write_log 'Unable to find GNSS library path, exiting.';
 SVPATH=`find /system/vendor/bin/hw -name 'android.hardware.gnss@*-service*' | head -n 1`
 if [[ ! $SVPATH ]]; then SVPATH=`find /system/vendor/bin/hw -name '*.gnss@?.?-service*' | head -n 1`; fi
 if [[ ! $SVPATH ]]; then write_log 'Unable to find GNSS service path, exiting.'; exit; fi
+echo -n $SVPATH > $MODDIR/service_path
+
 SONAME=`basename $SOPATH`
 SVNAME=`basename $SVPATH`
 HIDL_VER=`echo $SONAME | sed 's/^.*android.hardware.gnss@\(.*\)-impl.*$/\1/g'`
 NEW_SOPATH="$MODDIR/bin/$ARCH/android.hardware.gnss@$HIDL_VER-impl-openrealgps.so"
-if [[ ! -e $NEW_SOPATH ]]
-then
-  write_log "Unsupported GNSS HIDL version: $HIDL_VER, exiting."
-  exit
-fi
+if [[ ! -e $NEW_SOPATH ]]; then write_log "Unsupported GNSS HIDL version: $HIDL_VER, exiting."; exit; fi
 
 write_log "Original library path: $SOPATH"
 write_log "Original service path: $SVPATH"
@@ -54,10 +52,4 @@ cp -v $NEW_SOPATH "$MODDIR/system/vendor/$LIBPATH/hw/$SONAME" >> /cache/OpenReal
 cp -v -p $SVPATH "$MODDIR/system/vendor/bin/hw/gnss-service" >> /cache/OpenRealGPS.log 2>&1
 cp -v "$MODDIR/bin/dummy-service" "$MODDIR/system/vendor/bin/hw/$SVNAME" >> /cache/OpenRealGPS.log 2>&1
 
-SECON=`/system/bin/ls -Z $SVPATH | sed 's/^.*u:object_r:\(.*\):s0.*$/\1/g' | sed 's/^\(.*\)_exec$/\1/g'`
-if [[ $SECON ]]
-then
-  write_log "Saving service context $SECON"
-  echo -n $SECON > $MODDIR/service_context
-fi
 write_log 'post-fs-data done!'
