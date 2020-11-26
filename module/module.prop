@@ -1,6 +1,6 @@
 id=openrealgps
 name=OpenRealGPS Core
-version=2020.10.3
-versionCode=20103
+version=2020.11
+versionCode=20110
 author=OpenRealGPS Project
 description=USE AT YOUR OWN RISK - Read documents at https://github.com/OpenRealGPS/magisk-module

@@ -20,7 +20,8 @@ then
 fi
 
 write_log 'Preparing files'
-ABI=`resetprop ro.product.cpu.abi`
+ABI=`getprop ro.product.cpu.abi`
+if [[ ! $ABI ]]; then ABI=`resetprop ro.product.cpu.abi`; fi
 case "$ABI" in
 *arm64*) ARCH=arm64; LIBPATH=lib64;;
 *armeabi*) ARCH=arm; LIBPATH=lib;;
