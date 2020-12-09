@@ -1,4 +1,0 @@
-#!/system/bin/sh
-
-/system/bin/log -t 'OpenRealGPS_Service' "Dummy GNSS service started as: `id`"
-tail -f /dev/null
