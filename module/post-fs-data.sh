@@ -32,14 +32,21 @@ write_log "ABI: $ABI, ARCH: $ARCH, LIBPATH: $LIBPATH"
 
 SOPATH=`find /system/vendor/$LIBPATH/hw -name 'android.hardware.gnss@?.?-impl*.so' | head -n 1`
 if [[ ! $SOPATH ]]; then write_log 'Unable to find GNSS library path, exiting.'; exit; fi
-SVPATH=`find /system/vendor/bin/hw -name 'android.hardware.gnss@*-service*' | head -n 1`
-if [[ ! $SVPATH ]]; then SVPATH=`find /system/vendor/bin/hw -name '*.gnss@?.?-service*' | head -n 1`; fi
-if [[ ! $SVPATH ]]; then write_log 'Unable to find GNSS service path, exiting.'; exit; fi
-
 SONAME=`basename $SOPATH`
 HIDL_VER=`echo $SONAME | sed 's/^.*android.hardware.gnss@\(.*\)-impl.*$/\1/g'`
 NEW_SOPATH="$MODDIR/bin/$ARCH/android.hardware.gnss@$HIDL_VER-impl-openrealgps.so"
 if [[ ! -e $NEW_SOPATH ]]; then write_log "Unsupported GNSS HIDL version: $HIDL_VER, exiting."; exit; fi
+
+SVPATH=`find /system/vendor/bin/hw -name '*.gnss*' | head -n 1`
+if [[ ! $SVPATH ]]; then write_log 'Unable to find GNSS service path, exiting.'; exit; fi
+SVNAME=`basename $SVPATH`
+case "$SVNAME" in
+vendor.qti.gnss@*-service|android.hardware.gnss@*-service-qti) write_log "GNSS hardware type: Qualcomm";;
+android.hardware.gnss@*-service-mediatek|android.hardware.gnss-service.mediatek) write_log "GNSS hardware type: MediaTek";;
+vendor.samsung.hardware.gnss@*-service) write_log "GNSS hardware type: Samsung";;
+android.hardware.gnss@*-service-brcm) write_log "GNSS hardware type: Broadcom";;
+*) write_log "Unsupported GNSS hardware type: $SVNAME, exiting."; exit;;
+esac
 
 write_log "Original library path: $SOPATH"
 write_log "Original service path: $SVPATH"
