@@ -41,7 +41,7 @@ SVPATH=`find /system/vendor/bin/hw -name '*.gnss*' | head -n 1`
 if [[ ! $SVPATH ]]; then write_log 'Unable to find GNSS service path, exiting.'; exit; fi
 SVNAME=`basename $SVPATH`
 case "$SVNAME" in
-vendor.qti.gnss@*-service|android.hardware.gnss@*-service-qti) write_log "GNSS hardware type: Qualcomm";;
+vendor.qti.gnss@*-service|android.hardware.gnss@*-service-qti|android.hardware.gnss-aidl-service-qti) write_log "GNSS hardware type: Qualcomm";;
 android.hardware.gnss@*-service-mediatek|android.hardware.gnss-service.mediatek) write_log "GNSS hardware type: MediaTek";;
 vendor.samsung.hardware.gnss@*-service) write_log "GNSS hardware type: Samsung";;
 android.hardware.gnss@*-service-brcm) write_log "GNSS hardware type: Broadcom";;
