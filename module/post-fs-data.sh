@@ -2,7 +2,7 @@
 MODDIR=${0%/*}
 
 write_log() {
-  echo "[`date`] $1" >> /cache/OpenRealGPS.log
+  echo "[`date +'%m-%d %T.%N'`] $1" >> /cache/OpenRealGPS.log
 }
 
 echo -n > /cache/OpenRealGPS.log
@@ -11,6 +11,7 @@ write_log 'post-fs-data start'
 
 write_log 'Cleaning up'
 rm -rf $MODDIR/system
+rm -rf $MODDIR/vendor
 
 if [[ ! -e $MODDIR/i_have_read_the_warning ]]
 then
@@ -50,10 +51,13 @@ esac
 
 write_log "Original library path: $SOPATH"
 write_log "Original service path: $SVPATH"
-mkdir -p $MODDIR/system/vendor/$LIBPATH/hw
-mkdir -p $MODDIR/system/vendor/bin/hw
-cp -v -p $SOPATH "$MODDIR/system/vendor/$LIBPATH/hw/gnss-original.so" >> /cache/OpenRealGPS.log 2>&1
-cp -v $NEW_SOPATH "$MODDIR/system/vendor/$LIBPATH/hw/$SONAME" >> /cache/OpenRealGPS.log 2>&1
-cp -v -p $SVPATH "$MODDIR/system/vendor/bin/hw/" >> /cache/OpenRealGPS.log 2>&1
+VENDORDIR=$MODDIR/system/vendor
+if [ "$KSU" = true ]; then VENDORDIR=$MODDIR/vendor; fi
+mkdir -p $VENDORDIR/$LIBPATH/hw
+mkdir -p $VENDORDIR/bin/hw
+cp -v -p $SOPATH "$VENDORDIR/$LIBPATH/hw/gnss-original.so" >> /cache/OpenRealGPS.log 2>&1
+cp -v $NEW_SOPATH "$VENDORDIR/$LIBPATH/hw/$SONAME" >> /cache/OpenRealGPS.log 2>&1
+cp -v -p $SVPATH "$VENDORDIR/bin/hw/$SVNAME" >> /cache/OpenRealGPS.log 2>&1
+if [ "$KSU" = true ]; then chcon -v --reference="$SVPATH" "$VENDORDIR/bin/hw/$SVNAME" >> /cache/OpenRealGPS.log 2>&1; fi
 
 write_log 'post-fs-data done!'
